@@ -1,0 +1,350 @@
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+    <style type="text/css">
+    .gm-style .gm-style-mtc label,
+    .gm-style .gm-style-mtc div {
+        font-weight: 400
+    }
+    </style>
+    <style type="text/css">
+    .gm-style-pbc {
+        transition: opacity ease-in-out;
+        background-color: black;
+        text-align: center
+    }
+    
+    .gm-style-pbt {
+        font-size: 22px;
+        color: white;
+        font-family: Roboto, Arial, sans-serif;
+        position: relative;
+        margin: 0;
+        top: 50%;
+        -webkit-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%)
+    }
+    </style>
+    <link href="solar-pv-estimator-files/css.css" rel="stylesheet" type="text/css">
+    <link href="theme.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="script.js"></script>
+    <style type="text/css">
+    .gm-style .gm-style-cc span,
+    .gm-style .gm-style-cc a,
+    .gm-style .gm-style-mtc div {
+        font-size: 10px
+    }
+    </style>
+    <style type="text/css">
+    @media print {
+        .gm-style .gmnoprint,
+        .gmnoprint {
+            display: none
+        }
+    }
+    
+    @media screen {
+        .gm-style .gmnoscreen,
+        .gmnoscreen {
+            display: none
+        }
+    }
+    </style>
+    <style type="text/css">
+    .gm-style {
+        font-family: Roboto, Arial, sans-serif;
+        font-size: 11px;
+        font-weight: 400;
+        text-decoration: none
+    }
+    
+    .gm-style img {
+        max-width: none
+    }
+    </style>
+    <title>Solar PV Estimator</title>
+    <meta name="description" content="Solar PV Estimator">
+    <meta name="keywords" content="Solar PV Estimator, PV panels, beta, beta angle, solar beta">
+    <meta name="author" content="Venkatesh Pampana & Tajreen Khan">
+    <link rel="stylesheet" href="solar-pv-estimator-files/style.css">
+    <script type="text/javascript" src="script.js"></script>
+    <script src="solar-pv-estimator-files/analyticss.js" async=""></script>
+    <script src="solar-pv-estimator-files/java.js"></script>
+    <script src="solar-pv-estimator-files/ajax.js"></script>
+    <script src="solar-pv-estimator-files/maps" type="text/javascript"></script>
+    <script type="text/javascript">
+    var lat, lon, map, marker, geocoder;
+
+
+    function displayaddress(point) {
+        geocoder.getLocations(point, function(addresses) {
+            if (addresses.Status.code != 200) {
+                var myHtml = "";
+            } else {
+                address = addresses.Placemark[0];
+                var myHtml = address.address;
+            }
+            document.getElementById("rgnaddress").innerHTML = myHtml;
+        });
+    }
+    </script>
+    <script>
+    //google analytics code comes here
+    </script>
+    <script src="solar-pv-estimator-files/common.js" charset="UTF-8" type="text/javascript"></script>
+    <script src="solar-pv-estimator-files/map.js" charset="UTF-8" type="text/javascript"></script>
+    <script src="solar-pv-estimator-files/overlay.js" charset="UTF-8" type="text/javascript"></script>
+    <script src="solar-pv-estimator-files/util.js" charset="UTF-8" type="text/javascript"></script>
+    <script src="solar-pv-estimator-files/geocoder.js" charset="UTF-8" type="text/javascript"></script>
+    <script src="solar-pv-estimator-files/marker.js" charset="UTF-8" type="text/javascript"></script>
+    <script src="solar-pv-estimator-files/onion.js" charset="UTF-8" type="text/javascript"></script>
+    <script src="solar-pv-estimator-files/controls.js" charset="UTF-8" type="text/javascript"></script>
+    <script src="solar-pv-estimator-files/stats.js" charset="UTF-8" type="text/javascript"></script>
+    <script src="solar-pv-estimator-files/infowindow.js" charset="UTF-8" type="text/javascript"></script>
+</head>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=places"></script>
+<script type="text/javascript">
+google.maps.event.addDomListener(window, 'load', function() {
+    var places = new google.maps.places.Autocomplete(document.getElementById('txtPlaces'));
+    google.maps.event.addListener(places, 'place_changed', function() {
+        var place = places.getPlace();
+        var address = place.formatted_address;
+        var latitude = place.geometry.location.lat();
+        var longitude = place.geometry.location.lng();
+        document.getElementById("txtlat").value = latitude;
+        document.getElementById("txtlon").value = longitude;
+        loadMap(latitude, longitude);
+        var mesg = "Address: " + address;
+        mesg += "\nLatitude: " + latitude;
+        mesg += "\nLongitude: " + longitude;
+        alert(mesg);
+    });
+});
+
+function loadMap(latit, longit) {
+    var myCenter = new google.maps.LatLng(latit, longit);
+    var marker;
+    var mapProp = {
+        center: myCenter,
+        zoom: 10,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    var map = new google.maps.Map(document.getElementById("map_canvas"), mapProp);
+
+    var marker = new google.maps.Marker({
+        position: myCenter,
+        animation: google.maps.Animation.BOUNCE
+    });
+
+    marker.setMap(map);
+}
+</script>
+
+<body onload="initialize();setvalues();" onunload="GUnload()">
+    <div class="leftpane">
+        <div class="header">
+            <img src="solar-pv-estimator-files/otilt.png" title="otilt" height="50">
+            <div style="margin:5px;width:99%;">
+            </div>
+        </div>
+        <div class="bar" onclick='toggleshow("barwhatis");'><img src="solar-pv-estimator-files/what.png" height="16"> What is Solar PV Estimator?</div>
+        <div id="barwhatis" style="margin: 10px; display: none;">
+            Solar PV Estimator is a tool to estimate available solar photovoltaic potential at desired location. Visit this page for more details:
+            <br>
+        </div>
+        <div class="bar" onclick='toggleshow("barfindaddress");'><img src="solar-pv-estimator-files/findaddress.png" height="16"> Step-1: Set location/address</div>
+        <div style="margin: 10px;" id="barfindaddress">
+            <input type="text" id="txtPlaces" placeholder="Enter a location" style="width:99%;margin-left:0px;" name="txtsearch" />
+            <br>
+            <div id="rgnsearch" style="display: none;" class="searchresults"></div>
+            Example: Cologne, Germany
+            <input style="float:right;" onclick="search()" value="Find" type="button" hidden="true" />
+            <br>
+            <br>
+        </div>
+        <div class="bar" onclick='toggleshow("bargeocode");'><img src="solar-pv-estimator-files/geocode.png" height="16"> Geo-coordinates</div>
+        <div style="margin: 10px 10px 0px; display: none;" id="bargeocode">
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Latitude:</td>
+                        <td>
+                            <input name="txtlat" id="txtlat" onkeypress="changelatlon();" onchange="changelatlon();" type="text"> (+°N,-°S)</td>
+                    </tr>
+                    <tr>
+                        <td>Longitude:</td>
+                        <td>
+                            <input name="txtlon" id="txtlon" onkeypress="changelatlon();" onchange="changelatlon();" type="text"> (+°E,-°W)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="margin:10px;">
+            <b>Location:</b> <span style="margin-left:5px;color:green;" id="rgnaddress">Unter Käster 1, 50667 Köln, Germany</span>
+            <input id="btnsetlatlon" style="display:none;" value="Lets go!" onclick='setmap();toggleforce("btnsetlatlon","none");' type="button">
+            <br>
+            <center>
+                <button id="myBtn" style="margin:15px;padding:15px;background:#AFDCEC;width:80%;">Step-2: Enter PV System Info</button>
+            </center>
+        </div>
+        <div id="myModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close">X</span>
+                    <h2>Enter System Configuration</h2>
+                </div>
+               <!-- onsubmit=" validateForm();"" -->
+
+                <form name="myForm" >
+                    <div class="modal-body">
+                        <table style="align: center;">
+                            <tr>
+                                <td>
+                                    <label>System Capacity</label>
+                                </td>
+                                <td>
+                                    <input type="number" step="any" placeholder="0.05 to 500000 KW" name="sCapacity" class="bgGreen" required></input>
+                                </td>
+                                <td>
+                                    <label>DC to AC ratio</label>
+                                </td>
+                                <td>
+                                    <input type="number" step="any" name="dcRatio" value="1.1" class="bgOrange"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Module Type</label>
+                                </td>
+                                <td>
+                                    <select id="moduleType">
+                                        <option value="0">Standard </option>
+                                        <option value="1">premium </option>
+                                        <option value="2">Thin Film</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <label>Ground C ratio</label>
+                                </td>
+                                <td>
+                                    <input type="number" step="any" name="groundRatio" value="0.4" class="bgOrange"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>losses</label>
+                                </td>
+                                <td>
+                                    <input type="number" step="any" placeholder="-5 to 99" name="loss" class="bgGreen" required></input>
+                                </td>
+                                <td>
+                                    <label>Inverter Efficiency</label>
+                                </td>
+                                <td>
+                                    <input type="number" step="any" value="96" name="invEfficiency" class="bgOrange"></input>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Array Type</label>
+                                </td>
+                                <td>
+                                    <select id="arrayType">
+                                        <option value="0">Fixed-Open-Rack </option>
+                                        <option value="1">Fixed-Roofed-mounted </option>
+                                        <option value="2">One-axis</option>
+                                        <option value="3">One-axis-Backtracking</option>
+                                        <option value="4">Two-axis</option>
+                                    </select>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Tilt</label>
+                                </td>
+                                <td>
+                                    <input type="number" step="any" placeholder="0 to 90" name="tilt" class="bgGreen" required></input>
+                                </td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Azimuth</label>
+                                </td>
+                                <td>
+                                    <input type="number"  step="any" placeholder="0 to 360" name="azimuth" class="bgGreen" required></input>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </table>
+                        <table>
+                            <tr>
+                                <td>
+                                    <label id="lblErrorHead" class="error"></label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label id="lblError" class="error"></label>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" id="btnView" value="View Report" onclick="OnSubmitForm();">
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Solar PV Estimator 1.0 - Copyright (c) <a href="http://classlesoft.in/" target="_blank">Classlesoft</a></p>
+            <p>Developed by Tajreen Khan and Venkatesh Pampana
+            </p>
+        </div>
+    </div>
+    <div class="rightpane">
+        <div class="header">
+            <img src="solar-pv-estimator-files/pictographic-steps.png" title="How it works?" height="110"> <a href="http://classlesoft.in/" target="_blank">Watch 'How to' Video</a>
+            <div style="margin:2px;width:99.5%;">
+            </div>
+        </div>
+        <div id="map_canvas" style="width: 99.5%; height: 76%; position: relative; background-color: rgb(229, 227, 223); overflow: hidden;">
+        </div>
+    </div>
+    <div style="padding:5px;">
+    </div>
+    </div>
+    <script>
+    var modal = document.getElementById('myModal');
+
+
+    var btn = document.getElementById("myBtn");
+
+
+    var span = document.getElementsByClassName("close")[0];
+
+
+    btn.onclick = function() {
+        modal.style.display = "block";
+    }
+
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    </script>
+</body>
+
+</html>
